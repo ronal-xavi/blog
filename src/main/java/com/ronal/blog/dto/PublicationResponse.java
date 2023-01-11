@@ -6,8 +6,8 @@ import lombok.Setter;
 import java.util.List;
 @Getter
 @Setter
-public class PublicacionRespuesta {
-    private List<PublicacionDTO> contenido;
+public class PublicationResponse {
+    private List<PublicationDTO> contenido;
     private int numeroDePagina;
     private int medidaDePagina;
     private Long totalElementos;

@@ -1,12 +1,13 @@
 package com.ronal.blog.service.impl;
 
-import com.ronal.blog.dto.PublicacionDTO;
-import com.ronal.blog.dto.PublicacionRespuesta;
+import com.ronal.blog.dto.PublicationDTO;
+import com.ronal.blog.dto.PublicationResponse;
 import com.ronal.blog.dao.PublicationDAO;
-import com.ronal.blog.excepciones.ResourceNotFountException;
+import com.ronal.blog.dto.ResponseDTO;
+import com.ronal.blog.mapper.PublicationMapper;
 import com.ronal.blog.repository.PublicationRepository;
 import com.ronal.blog.service.PublicationService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -14,30 +15,40 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
+@RequiredArgsConstructor
 @Service
 public class PublicationServiceImpl implements PublicationService {
 
-    @Autowired
-    private PublicationRepository publicationRepository;
+    private final PublicationRepository publicationRepository;
+    private final PublicationMapper publicationMapper;
+
 
     @Override
-    public PublicacionDTO save(PublicacionDTO dto) {
-        //CONVERTIMOS DE DTO A ENTIDAD
-        PublicationDAO publicationDAO = mapearEntity(dto);
+    public ResponseDTO<PublicationDTO> save(PublicationDTO dto) {
 
-        //REGISTRAMOS LA PUBLICACION
-        PublicationDAO publicationDAONueva = publicationRepository.save(publicationDAO);
+        PublicationDAO publicationDAO = publicationMapper.publicationDtoToPublicationDao(dto);
 
-        //CONVERTIMOS DE ENTIDAD A DTO
-        PublicacionDTO publicacionRespuesta = mapearDTO(publicationDAONueva);
+        publicationRepository.save(publicationDAO);
 
-        return publicacionRespuesta;
+        PublicationDTO salida  = publicationMapper.publicationDaoToPublicationDto(publicationDAO);
+
+        return ResponseDTO.<PublicationDTO>builder()
+                .success(Boolean.TRUE)
+                .mensaje("REGISTRADO CORRECTAMENTE")
+                .response(salida).build();
     }
 
     @Override
-    public List<PublicacionDTO> list(int numeroDePagina, int medidaDePagina) {
+    public List<PublicationDTO> listaRonal() {
+        List<PublicationDAO> listaDAO = publicationRepository.findAll();
+        return  publicationMapper.lstToDto(listaDAO);
+    }
+
+    @Override
+    public List<PublicationDTO> list(int numeroDePagina, int medidaDePagina) {
         Pageable pageable = PageRequest.of(numeroDePagina,medidaDePagina);
 
         Page<PublicationDAO> publicacions = publicationRepository.findAll(pageable);
@@ -47,7 +58,7 @@ public class PublicationServiceImpl implements PublicationService {
     }
 
     @Override
-    public PublicacionRespuesta listar(int numeroDePagina, int medidaDePagina,String ordenarPor,String sortDir) {
+    public PublicationResponse listar(int numeroDePagina, int medidaDePagina, String ordenarPor, String sortDir) {
         Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(ordenarPor).ascending():Sort.by(ordenarPor).descending();
         Pageable pageable = PageRequest.of(numeroDePagina,medidaDePagina,sort);
 
@@ -55,55 +66,62 @@ public class PublicationServiceImpl implements PublicationService {
 
         List<PublicationDAO> listaDePublicaciones = publicacions.getContent();
 
-        List<PublicacionDTO> contenido =  listaDePublicaciones.stream().map(publicationDAO -> mapearDTO(publicationDAO)).collect(Collectors.toList());
+        List<PublicationDTO> contenido =  listaDePublicaciones.stream().map(publicationDAO -> mapearDTO(publicationDAO)).collect(Collectors.toList());
 
-        PublicacionRespuesta publicacionRespuesta = new PublicacionRespuesta();
-        publicacionRespuesta.setContenido(contenido);
-        publicacionRespuesta.setNumeroDePagina(publicacions.getNumber());
-        publicacionRespuesta.setMedidaDePagina(publicacions.getSize());
-        publicacionRespuesta.setTotalElementos(publicacions.getTotalElements());
-        publicacionRespuesta.setTotalPaginas(publicacions.getTotalPages());
-        publicacionRespuesta.setUltima(publicacions.isLast());
+        PublicationResponse publicationResponse = new PublicationResponse();
+        publicationResponse.setContenido(contenido);
+        publicationResponse.setNumeroDePagina(publicacions.getNumber());
+        publicationResponse.setMedidaDePagina(publicacions.getSize());
+        publicationResponse.setTotalElementos(publicacions.getTotalElements());
+        publicationResponse.setTotalPaginas(publicacions.getTotalPages());
+        publicationResponse.setUltima(publicacions.isLast());
 
-        return publicacionRespuesta;
+        return publicationResponse;
     }
 
     @Override
-    public PublicacionDTO searchById(Long id) {
-        PublicationDAO publicationDAO = publicationRepository.findById(id).orElseThrow(() -> new ResourceNotFountException("Publicacion", "id", id));
-        return mapearDTO(publicationDAO);
+    public PublicationDTO searchById(Long id) {
+        PublicationDAO publicationDAO = publicationRepository.findById(id).orElse(null);
+        return publicationMapper.publicationDaoToPublicationDto(publicationDAO);
     }
 
     @Override
-    public PublicacionDTO update(PublicacionDTO dto, Long id) {
+    public PublicationDTO update(PublicationDTO dto, Long id) {
 
-        PublicationDAO publicationDAO = publicationRepository.findById(id).orElseThrow(() -> new ResourceNotFountException("Publicación","id",id));
+        PublicationDAO publicationDAO = publicationRepository.findById(id).orElse(null);
+        if (Objects.isNull(publicationDAO)){
+            return null;
+        }
+
         publicationDAO.setTitle(dto.getTitle());
         publicationDAO.setDescription(dto.getDescription());
         publicationDAO.setContent(dto.getContent());
 
-        PublicationDAO publicationDAOActualizada = publicationRepository.save(publicationDAO);
+        publicationRepository.save(publicationDAO);
 
-        return mapearDTO(publicationDAOActualizada);
+        return publicationMapper.publicationDaoToPublicationDto(publicationDAO);
     }
 
     @Override
     public void delete(Long id) {
-        PublicationDAO publicationDAO = publicationRepository.findById(id).orElseThrow(() -> new ResourceNotFountException("Publicación","id",id));
-        publicationRepository.delete(publicationDAO);
+        PublicationDAO publicationDAO = publicationRepository.findById(id).orElse(null);
 
+        publicationRepository.delete(publicationDAO);
     }
+
 
     //ENTITY => DTO
-    public PublicacionDTO mapearDTO(PublicationDAO publicationDAO){
-        PublicacionDTO publicacionDTO = new PublicacionDTO();
-        publicacionDTO.setIdPublication(publicationDAO.getIdPublication());
-        publicacionDTO.setTitle(publicationDAO.getTitle());
-        publicacionDTO.setDescription(publicationDAO.getDescription());
-        publicacionDTO.setContent(publicationDAO.getContent());
-        return publicacionDTO;
+    @Deprecated
+    public PublicationDTO mapearDTO(PublicationDAO publicationDAO){
+        PublicationDTO publicationDTO = new PublicationDTO();
+        publicationDTO.setIdPublication(publicationDAO.getIdPublication());
+        publicationDTO.setTitle(publicationDAO.getTitle());
+        publicationDTO.setDescription(publicationDAO.getDescription());
+        publicationDTO.setContent(publicationDAO.getContent());
+        return publicationDTO;
     }
-    public PublicationDAO mapearEntity(PublicacionDTO dto) {
+    @Deprecated
+    public PublicationDAO mapearEntity(PublicationDTO dto) {
         PublicationDAO publicationDAO = new PublicationDAO();
         publicationDAO.setTitle(dto.getTitle());
         publicationDAO.setDescription(dto.getDescription());

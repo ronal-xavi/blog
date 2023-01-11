@@ -2,7 +2,6 @@ package com.ronal.blog.dao;
 
 
 import lombok.*;
-
 import javax.persistence.*;
 
 @NoArgsConstructor
@@ -21,10 +20,10 @@ public class PublicationDAO {
     @Column(name = "title", nullable = false)
     private String title;
 
-    @Column(name = "description",nullable = false)
+    @Column(name = "description", nullable = false)
     private String description;
 
-    @Column(name = "content",nullable = false)
+    @Column(name = "content", nullable = false)
     private String content;
 
 }
