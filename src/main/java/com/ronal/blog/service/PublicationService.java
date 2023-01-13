@@ -1,18 +1,14 @@
 package com.ronal.blog.service;
 
 import com.ronal.blog.dto.PublicationDTO;
-import com.ronal.blog.dto.PublicationResponse;
+import com.ronal.blog.dto.PublicationResponseDTO;
 import com.ronal.blog.dto.ResponseDTO;
-
-import java.util.List;
 
 public interface PublicationService {
 
-     ResponseDTO<PublicationDTO> save(PublicationDTO dto);
-     List<PublicationDTO> listaRonal ();
-     List<PublicationDTO> list(int numeroDePagina, int medidaDePagina);
-     PublicationResponse listar(int numeroDePagina, int medidaDePagina, String ordenarPor, String sortDir );
+     PublicationResponseDTO listPublications(int numeroDePagina, int pageSize, String sortBy, String sortDir);
      PublicationDTO searchById(Long id);
+     ResponseDTO<PublicationDTO> save(PublicationDTO dto);
      PublicationDTO update(PublicationDTO dto, Long id);
      void delete(Long id);
 }

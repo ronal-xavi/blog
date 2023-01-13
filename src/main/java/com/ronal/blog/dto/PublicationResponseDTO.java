@@ -1,17 +1,19 @@
 package com.ronal.blog.dto;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.List;
+
+@NoArgsConstructor
+@AllArgsConstructor
 @Getter
 @Setter
-public class PublicationResponse {
+@Builder
+public class PublicationResponseDTO {
     private List<PublicationDTO> contenido;
-    private int numeroDePagina;
-    private int medidaDePagina;
+    private int pageNumber;
+    private int pageSize;
     private Long totalElementos;
     private int totalPaginas;
     private boolean ultima;
-
 }

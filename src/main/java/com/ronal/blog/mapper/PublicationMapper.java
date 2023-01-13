@@ -11,8 +11,8 @@ public interface PublicationMapper {
     PublicationDAO publicationDtoToPublicationDao(PublicationDTO publicationDTO);
     PublicationDTO publicationDaoToPublicationDto(PublicationDAO publicationDAO);
 
-    List<PublicationDAO> lstToDao(List<PublicationDTO> listDTO);
+    List<PublicationDAO> listDtoToListDao(List<PublicationDTO> listDTO);
 
-    List<PublicationDTO>lstToDto(List<PublicationDAO> listDAO);
+    List<PublicationDTO> listDaoToListDto(List<PublicationDAO> listDAO);
 
 }
