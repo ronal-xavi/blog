@@ -8,6 +8,7 @@ import com.ronal.blog.service.PublicationService;
 
 import static com.ronal.blog.util.Constantes.*;
 
+import com.ronal.blog.util.Constantes;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpStatus;
@@ -22,13 +23,17 @@ public class PublicacionController {
     private final PublicationService publicationService;
 
     @GetMapping("/listPublications")
-    public PublicationResponseDTO listarPublicaciones(@RequestParam(value = "nro", defaultValue = "0", required = false) int numeroDePagina,
-                                                      @RequestParam(value = "pageSize", defaultValue = "10", required = false) int medidaDePagina,
-                                                      @RequestParam(value = "sortBy", defaultValue = "idPublication", required = false) String sortBy,
-                                                      @RequestParam(value = "sortDir", defaultValue = "asc", required = false) String sortDir) {
-        return publicationService.listPublications(numeroDePagina, medidaDePagina, sortBy, sortDir);
+    public PublicationResponseDTO listPublications(@RequestParam(value = "pageNumber", defaultValue = PAGE_NUMBER, required = false) int pageNumber,
+                                                   @RequestParam(value = "pageSize", defaultValue = PAGE_SIZE, required = false) int pageSize,
+                                                   @RequestParam(value = "sortBy", defaultValue = SORT_BY, required = false) String sortBy,
+                                                   @RequestParam(value = "sortDir", defaultValue = SORT_DIR, required = false) String sortDir) {
+        return publicationService.listPublications(pageNumber, pageSize, sortBy, sortDir);
     }
 
+    @GetMapping("/obtenerPorId/{id}")
+    public ResponseEntity<PublicationDTO> searchById(@PathVariable("id") Long id) {
+        return ResponseEntity.ok(publicationService.searchById(id));
+    }
 
     @PostMapping("/save")
     public ResponseEntity<ResponseDTO<PublicationDTO>> save(@RequestBody PublicationDTO dto) {
@@ -46,11 +51,6 @@ public class PublicacionController {
         ResponseDTO<PublicationDTO> salida = publicationService.save(dto);
 
         return new ResponseEntity<>(salida, HttpStatus.CREATED);
-    }
-
-    @GetMapping("/obtenerPorId/{id}")
-    public ResponseEntity<PublicationDTO> obtenerPublicacionPorId(@PathVariable("id") Long id) {
-        return ResponseEntity.ok(publicationService.searchById(id));
     }
 
     @PutMapping("/actualizarPublicacion/{id}")
