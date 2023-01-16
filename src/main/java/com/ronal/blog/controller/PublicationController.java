@@ -5,21 +5,19 @@ import com.ronal.blog.dto.PublicationResponseDTO;
 import com.ronal.blog.dto.ResponseDTO;
 import com.ronal.blog.exceptions.RequestException;
 import com.ronal.blog.service.PublicationService;
-
-import static com.ronal.blog.util.Constantes.*;
-
-import com.ronal.blog.util.Constantes;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import static com.ronal.blog.util.Constantes.*;
+
 
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/publication")
-public class PublicacionController {
+public class PublicationController {
     private final PublicationService publicationService;
 
     @GetMapping("/listPublications")
@@ -53,12 +51,12 @@ public class PublicacionController {
         return new ResponseEntity<>(salida, HttpStatus.CREATED);
     }
 
-    @PutMapping("/actualizarPublicacion/{id}")
-    public ResponseEntity<PublicationDTO> actualizarPublicacion(@RequestBody PublicationDTO dto,
-                                                                @PathVariable("id") Long id) {
-        PublicationDTO publicacionRespuesta = publicationService.update(dto, id);
+    @PutMapping("/updatePublication/{id}")
+    public ResponseEntity<PublicationDTO> updatePublication(@RequestBody PublicationDTO dto,
+                                                            @PathVariable("id") Long id) {
+        PublicationDTO publicationResponse = publicationService.update(dto, id);
 
-        return new ResponseEntity<>(publicacionRespuesta, HttpStatus.OK);
+        return new ResponseEntity<>(publicationResponse, HttpStatus.OK);
     }
 
     @DeleteMapping("/eliminar/{id}")

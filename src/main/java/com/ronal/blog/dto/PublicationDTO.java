@@ -14,4 +14,6 @@ public class PublicationDTO {
     private String title;
     private String description;
     private String content;
+    private CommentaryDTO commentaryDTO;
+
 }

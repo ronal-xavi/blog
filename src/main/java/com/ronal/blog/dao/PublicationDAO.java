@@ -3,6 +3,8 @@ package com.ronal.blog.dao;
 
 import lombok.*;
 import javax.persistence.*;
+import java.util.HashSet;
+import java.util.Set;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -25,5 +27,8 @@ public class PublicationDAO {
 
     @Column(name = "content", nullable = false)
     private String content;
+
+    @OneToMany(mappedBy = "publicationDAO", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<CommentaryDAO> commentaryDAO = new HashSet<>();
 
 }
